@@ -1,7 +1,9 @@
 import socket
 import math
 import sys
+import os
 import thread
+import subprocess
 
 socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket1.bind(('10.253.21.37', 9882))
@@ -18,6 +20,7 @@ def program(sc, addr):
 			aux = sc.recv(1024)
 			while aux != "#":
 				File += aux
+				aux = sc.recv(1024)
 			cppFile.write(File)
 			cppFile.close()
 			# Archivo de entrada
@@ -26,13 +29,15 @@ def program(sc, addr):
 			aux = sc.recv(1024)
 			while aux != "#":
 				File += aux
+				aux = sc.recv(1024)
 			entrada.write(File)
 			entrada.close()
-			p1 = Popen(["g++", "archivo.cpp", "-o", "ejecutable.exe"])
-			
+			p1 =  subprocess.Popen(["g++", "archivo.cpp", "-o", "ejecutable.exe"])
+			p1.communicate()
+			os.system("ejecutable.exe < input.in > salida.in")
 
 		if "destroy" == operation:
-			sc.send("destroy")
+			sc.send("destruir")
 
 
 def main():

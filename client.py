@@ -1,5 +1,6 @@
 import socket
 import thread
+import time
 
 host = "10.253.21.37"
 puerto = 9882
@@ -17,6 +18,7 @@ def program():
 
 
 
+
 def main():
     socket1.connect((host,puerto))
     thread1 = thread.start_new_thread(program, ())
@@ -27,6 +29,24 @@ def main():
         socket1.send("destroy")
         cppFile = raw_input("Direccion de archivo cpp: ")
         inputFile = raw_input("Direccion de archivo de entrada: ")
+        socket1.send("g++")
+        f = open(cppFile, "rb")
+        content = f.read(1024)
+        while content:
+            print content
+            time.sleep(0.2)
+            socket1.send(content)
+            content = f.read(1024)
+        socket1.send("#")
+        f = open(inputFile, "rb")
+        content = f.read(1024)
+        while content:
+            print content
+            time.sleep(0.2)
+            socket1.send(content)
+            content = f.read(1024)
+        socket1.send("#")
+        f.close()
 
 
 
