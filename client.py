@@ -13,7 +13,7 @@ hostCentralServer = "192.168.0.14"
 puertoCentralServer = 9882
 
 host = "192.168.0.14"
-port = 9884
+port = 9883
 
 socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

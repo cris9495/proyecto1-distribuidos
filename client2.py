@@ -13,7 +13,7 @@ hostCentralServer = "192.168.0.14"
 puertoCentralServer = 9882
 
 host = "192.168.0.14"
-port = 9883
+port = 9884
 
 socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -66,6 +66,7 @@ def program():
             thread.start_new_thread(ejecution,(sc, addr, cl))
         if operation == "Reset":
             sc = "A"
+            socket1.send("libre")
         if operation == "destruir":
             if type(sc) != str:
                 socket1.send("stoppedProcess")
@@ -120,6 +121,7 @@ def midlew(cppFile, inputFile):
 
 def main():
     global machineConection
+    global midleclose
     socket1.connect((hostCentralServer,puertoCentralServer))
     time.sleep(0.2)
     socket1.send(host + ' ' + str(port))
@@ -145,7 +147,6 @@ def main():
                 machineConection = ""
                 thread.start_new_thread(midlew, (cppFile, inputFile))
             if operation == "successfulProcess":
-                socket1.send("libre")
                 break
 
 
