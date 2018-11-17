@@ -4,6 +4,7 @@ import sys
 import os
 import thread
 import subprocess
+import time
 from sets import Set
 
 socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,13 +20,15 @@ def program(sc, addr, client):
 		operation = sc.recv(1024)
 		print(operation)
 		if operation == "libre":
-			client = sc.recv(1024)
 			print("add " + client)
 			H.add(client)
 
 		if operation == "needServer":
 			envio = H.pop()
+			clientes[envio].send("process")
 			print("send " + envio)
+			sc.send("recvMachine")
+			time.sleep(0.2)
 			sc.send(envio)
 
 		if operation == "Reset":
@@ -55,7 +58,9 @@ def main():
 		Ip = str(addr[0])
 		Puerto = str(addr[1])
 		print("recibida conexion de la IP: " + Ip + "puerto: " + Puerto)
+		clientes[Ip + ' ' + Puerto] = sc
 		client = sc.recv(1024)
+		print client
 		clientes[client] = sc;
 		thread.start_new_thread(program,(sc,addr, client))
 

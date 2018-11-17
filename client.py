@@ -6,11 +6,14 @@ import os
 import subprocess
 import math
 
+midleclose = False
+machineConection = ""
+
 hostCentralServer = "192.168.0.14"
 puertoCentralServer = 9882
 
 host = "192.168.0.14"
-port = 9883
+port = 9884
 
 socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,7 +21,7 @@ sServer.bind((host, port))
 sServer.listen(10)
 
 
-def ejecution(sc, addr):
+def ejecution(sc, addr, cl):
     print("Conectado con el cliente: IP: " + addr[0] + " PORT: " + str(addr[1]))
     # recibiendo el archivo cpp
 
@@ -45,7 +48,7 @@ def ejecution(sc, addr):
     os.system("ejecutable.exe < input.in > salida.out")
     socket1.send("successfulProcess")
     time.sleep(0.2)
-    socket1.send(addr[0] + ' ' + str(addr[1]))
+    socket1.send(cl)
     time.sleep(0.2)
     socket1.send("Reset")
 
@@ -54,31 +57,37 @@ def program():
     global socket1
     socket1.send("libre")
     sc = "A"
+    cl = ""
     while True:
         operation = socket1.recv(1024)
         if operation == "process":
             sc, addr = sServer.accept()
-            thread.start_new_thread(ejecution,(sc, addr))
+            cl = sc.recv(1024)
+            thread.start_new_thread(ejecution,(sc, addr, cl))
         if operation == "Reset":
             sc = "A"
+            socket1.send("libre")
         if operation == "destruir":
             if type(sc) != str:
                 socket1.send("stoppedProcess")
                 time.sleep(0.2)
-                socket1.send(addr[0] + ' ' + str(addr[1]))
+                socket1.send(cl)
 
             print("se destruye")
             thread.exit()
 
 def program2(cppFile, inputFile):
-
+    global machineConection
     # solicitando Servidor
 
     socket1.send("needServer")
-    resultado = socket1.recv(1024)
-    IPPUERTO = resultado.split(" ")
+    while machineConection == "":
+        pass
+    IPPUERTO = machineConection.split(" ")
     socket2 = socket.socket()
     socket2.connect((IPPUERTO[0], int(IPPUERTO[1])))
+    time.sleep(0.2)
+    socket2.send(host + ' ' + str(port))
 
     # Enviando archivo cpp
 
@@ -104,13 +113,15 @@ def program2(cppFile, inputFile):
     f.close()
 
 def midlew(cppFile, inputFile):
-    thread.start_new_thread(program, (cppFile, inputFile))
-    while True:
-        operation = socket1.recv(1024)
-        if operation == "destroy1":
-            thread.exit()
+    global midleclose
+    thread.start_new_thread(program2, (cppFile, inputFile))
+    while not midleclose:
+        pass
+    thread.exit()
 
 def main():
+    global machineConection
+    global midleclose
     socket1.connect((hostCentralServer,puertoCentralServer))
     time.sleep(0.2)
     socket1.send(host + ' ' + str(port))
@@ -120,13 +131,22 @@ def main():
         socket1.send("destroy")
         cppFile = raw_input("Direccion de archivo cpp: ")
         inputFile = raw_input("Direccion de archivo de entrada: ")
+        midleclose = False
+        machineConection = ""
         thread.start_new_thread(midlew, (cppFile, inputFile))
         while True:
             operation = socket1.recv(1024)
+            print("principal " + operation)
+            if operation == "destroy1":
+                midleclose = True
+            if operation == "recvMachine":
+                machineConection = socket1.recv(1024)
+                print "recibsido"
             if operation == "stoppedProcess":
+                midleclose = False
+                machineConection = ""
                 thread.start_new_thread(midlew, (cppFile, inputFile))
             if operation == "successfulProcess":
-                socket1.send("libre")
                 break
 
 
