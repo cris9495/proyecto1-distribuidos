@@ -9,10 +9,10 @@ import math
 midleclose = False
 machineConection = ""
 
-hostCentralServer = "192.168.0.14"
+hostCentralServer = "192.168.1.78"
 puertoCentralServer = 9882
 
-host = "192.168.0.14"
+host = "192.168.1.78"
 port = 9883
 
 socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

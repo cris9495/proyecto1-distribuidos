@@ -8,7 +8,7 @@ import time
 from sets import Set
 
 socket1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-socket1.bind(('192.168.0.14', 9882))
+socket1.bind(("192.168.1.78", 9882))
 socket1.listen(10)
 
 
@@ -42,11 +42,13 @@ def program(sc, addr, client):
 
 		if operation == "stoppedProcess":
 			cl =sc.recv(1024)
+			clientes[cl].send("destroy1")
+			time.sleep(0.2)
 			clientes[cl].send("stoppedProcess")
 
 		if "destroy" == operation:
 			print("rmv " + client)
-			H.remove(client)
+			H.discard(client)
 			sc.send("destruir")
 
 clientes = {}
